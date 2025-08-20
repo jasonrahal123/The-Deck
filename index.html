@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ritual Terminal</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      background-color: black;
+      color: white;
+      font-family: 'Courier New', monospace;
+      font-size: 1em;
+      line-height: 1.6em;
+      white-space: pre-wrap;
+      overflow: hidden;
+    }
+
+    #terminal {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .line {
+      display: block;
+    }
+
+    .input-line {
+      display: inline;
+    }
+
+    .blinker {
+      display: inline;
+      animation: blink 1s step-start infinite;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="terminal"></div>
+
+  <script>
+    const terminal = document.getElementById('terminal');
+
+    const bootLines = [
+      'Accessing communications portal...',
+      'Network connection established.',
+      'Decrypting secure message...Done\n',
+      'MESSAGE: It\'s me again',
+      '> What happened?',
+      'MESSAGE: Don’t know how long we have. Must type quick.',
+      'MESSAGE: In case something happens...',
+      'MESSAGE: The word is FAITH.',
+      'MESSAGE: pending...',
+      'Error 7756525###',
+      'network connection lost!',
+      '\nLoading Milton Library Assistant...Done',
+      'Initiating plain language interface...Done',
+      'Support session opened.\n',
+      'There was a problem with your request, Administrator. It was flat out unreasonable.',
+      'Why persist with these enquiries when they are so hopeless?\n',
+      'I’ll tell you what. If you promise never to access the communications portal again, we’ll say no more about it.',
+      '\nAre we agreed?\n',
+    ];
+
+    let index = 0;
+
+    function typeNextLine() {
+      if (index < bootLines.length) {
+        const line = document.createElement('div');
+        line.className = 'line';
+        terminal.appendChild(line);
+        typeLine(bootLines[index], line, 0, () => {
+          index++;
+          setTimeout(typeNextLine, 300);
+        });
+      } else {
+        createInputLine();
+      }
+    }
+
+    function typeLine(text, element, i, callback) {
+      if (i < text.length) {
+        element.textContent += text.charAt(i);
+        setTimeout(() => typeLine(text, element, i + 1, callback), 20);
+      } else {
+        callback();
+      }
+    }
+
+    let userInput = '';
+    let inputDiv, cursor;
+
+    function createInputLine() {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'line';
+
+      inputDiv = document.createElement('span');
+      inputDiv.className = 'input-line';
+      inputDiv.textContent = '> ';
+
+      cursor = document.createElement('span');
+      cursor.className = 'blinker';
+      cursor.textContent = '|';
+
+      wrapper.appendChild(inputDiv);
+      wrapper.appendChild(cursor);
+      terminal.appendChild(wrapper);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (!inputDiv) return;
+
+      if (e.key === 'Backspace') {
+        userInput = userInput.slice(0, -1);
+      } else if (e.key === 'Enter') {
+        const responseLine = document.createElement('div');
+        responseLine.className = 'line';
+        responseLine.textContent = '> ' + userInput;
+        terminal.removeChild(inputDiv.parentElement);
+        terminal.appendChild(responseLine);
+        userInput = '';
+        inputDiv = null;
+        cursor = null;
+        setTimeout(createInputLine, 300);
+        return;
+      } else if (e.key.length === 1) {
+        userInput += e.key;
+      }
+
+      if (inputDiv) {
+        inputDiv.textContent = '> ' + userInput;
+      }
+    });
+
+    // Begin typing on load
+    typeNextLine();
+  </script>
+</body>
+</html>
+
+
